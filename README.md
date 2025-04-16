@@ -1,2 +1,2 @@
 ﻿# Python-Automacao
-Projetos de automação em Python organizados por área distintas
+🐍 Projetos de automação em Python organizados por área distintas
