@@ -1,50 +1,46 @@
 import os
 import shutil
 
+# Caminho da pasta que será organizada (pode personalizar)
+PASTA_ALVO = os.path.expanduser("~/Downloads")
 
-def organizar_arquivos(diretorio):
-    # Extensões e pastas correspondentes
-    extensoes_pastas = {
-        '.pdf': 'PDFs',
-        '.jpg': 'Imagens',
-        '.jpeg': 'Imagens',
-        '.png': 'Imagens',
-        '.docx': 'Documentos',
-        '.xlsx': 'Planilhas',
-        '.txt': 'Textos',
-        '.mp4': 'Videos',
-        '.mp3': 'Músicas'
-    }
-
-    # Criar pastas se não existirem
-    for pasta in set(extensoes_pastas.values()):
-        caminho_pasta = os.path.join(diretorio, pasta)
-        if not os.path.exists(caminho_pasta):
-            os.makedirs(caminho_pasta)
-
-    # Organizar arquivos
-    for arquivo in os.listdir(diretorio):
-        # Ignorar pastas
-        if os.path.isdir(os.path.join(diretorio, arquivo)):
-            continue
-
-        # Obter extensão do arquivo
-        nome, extensao = os.path.splitext(arquivo)
-        extensao = extensao.lower()  # garantir minúsculas
-
-        # Mover arquivo para pasta correspondente
-        if extensao in extensoes_pastas:
-            pasta_destino = extensoes_pastas[extensao]
-            origem = os.path.join(diretorio, arquivo)
-            destino = os.path.join(diretorio, pasta_destino, arquivo)
-
-            shutil.move(origem, destino)
-            print(f'Arquivo {arquivo} movido para {pasta_destino}/')
+# Extensões e pastas de destino
+TIPOS_DE_ARQUIVO = {
+    "Imagens": [".jpg", ".jpeg", ".png", ".gif", ".bmp"],
+    "Documentos": [".pdf", ".docx", ".txt", ".xlsx", ".pptx"],
+    "Vídeos": [".mp4", ".mov", ".avi"],
+    "Áudios": [".mp3", ".wav"],
+    "Compactados": [".zip", ".rar", ".7z"],
+    "Executáveis": [".exe", ".msi", ".sh", ".bat"],
+    "Scripts Python": [".py"],
+}
 
 
-if __name__ == '__main__':
-    # Usar o diretório atual ou especificar outro
-    diretorio_alvo = os.getcwd()  # Pode substituir por outro caminho
-    print(f'Organizando arquivos em: {diretorio_alvo}')
-    organizar_arquivos(diretorio_alvo)
-    print('Organização concluída!')
+def organizar_pasta(pasta):
+    for arquivo in os.listdir(pasta):
+        caminho_completo = os.path.join(pasta, arquivo)
+
+        if os.path.isfile(caminho_completo):
+            _, extensao = os.path.splitext(arquivo)
+            movido = False
+
+            for categoria, extensoes in TIPOS_DE_ARQUIVO.items():
+                if extensao.lower() in extensoes:
+                    destino = os.path.join(pasta, categoria)
+                    os.makedirs(destino, exist_ok=True)
+                    shutil.move(caminho_completo, os.path.join(destino, arquivo))
+                    print(f"Movido: {arquivo} → {categoria}/")
+                    movido = True
+                    break
+
+            if not movido:
+                outros = os.path.join(pasta, "Outros")
+                os.makedirs(outros, exist_ok=True)
+                shutil.move(caminho_completo, os.path.join(outros, arquivo))
+                print(f"Movido: {arquivo} → Outros/")
+
+
+if __name__ == "__main__":
+    print(f"Organizando: {PASTA_ALVO}")
+    organizar_pasta(PASTA_ALVO)
+    print("Organização concluída!")
